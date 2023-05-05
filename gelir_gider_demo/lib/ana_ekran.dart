@@ -14,29 +14,36 @@ class _AnaEkranState extends State<AnaEkran>
   late final AnimationController _controller;
   late TextEditingController _gelirController = TextEditingController();
   late TextEditingController _giderController = TextEditingController();
-   int ? gelir;
-  int  toplamgelir = 0;
-  int ? gider;
-  int toplamgider =0;
+  int? gelir;
+  late int toplamgelir;
 
+  int? gider;
+  late int toplamgider;
 
   var box = Hive.box<int>("data");
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     _controller = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _controller.forward();
+    if (box.get(0) == null) {
+      box.put(0, 0);
+    }
+    if (box.get(1) == null) {
+      box.put(1, 0);
+    }
+
+    toplamgelir = box.get(0)!;
+    toplamgider = box.get(1)!;
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _controller.dispose();
   }
@@ -45,47 +52,100 @@ class _AnaEkranState extends State<AnaEkran>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Gelir Gider"),
+        title: const Text("Gelir Gider"),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Stack(
-              alignment: AlignmentDirectional.center,
-              children: [
-                LottieBuilder.asset(
-                  "animations/96199-round-circle-loading.json",
-                  controller: _controller,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Toplam Gelir"),
-                    Text("${box.get(0)!-box.get(1)!}"),
-                  ],
-                )
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  LottieBuilder.asset(
+                    "animations/96199-round-circle-loading.json",
+                    controller: _controller,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${box.get(0)! - box.get(1)!}",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      const Text("Toplam Gelir"),
+                    ],
+                  )
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 1, bottom: 10),
-            child: Row(
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 1,
+                bottom: 10,
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      openDialog();
+                    },
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: Card(
+                        child: Column(
+                          children: const [
+                            Icon(
+                              Icons.add_circle_outline_sharp,
+                              size: 80,
+                              color: Colors.green,
+                            ),
+                            Text("Gelir Ekle")
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      openDialog1();
+                    },
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: Card(
+                        child: Column(
+                          children: const [
+                            Icon(
+                              Icons.remove_circle_outline,
+                              size: 80,
+                              color: Colors.red,
+                            ),
+                            Text("Gider Ekle"),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
               children: [
                 GestureDetector(
                   onTap: () {
-                    openDialog();
+                    //fonksiyon atanacak
                   },
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
                     child: Card(
                       child: Column(
-                        children: [
+                        children: const [
                           Icon(
-                            Icons.add_circle_outline_sharp,
-                            size: 40,
+                            Icons.not_accessible,
+                            size: 80,
+                            color: Colors.red,
                           ),
-                          Text("Gelir Ekle")
+                          Text("Not Ekle"),
                         ],
                       ),
                     ),
@@ -93,45 +153,66 @@ class _AnaEkranState extends State<AnaEkran>
                 ),
                 GestureDetector(
                   onTap: () {
-                    openDialog1();
+                    //fonksiyon atanacak
                   },
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
                     child: Card(
                       child: Column(
-                        children: [
+                        children: const [
                           Icon(
-                            Icons.remove_circle_outline,
-                            size: 40,
+                            Icons.settings,
+                            size: 80,
+                            color: Colors.red,
                           ),
-                          Text("Gider Ekle"),
+                          Text("Ayarlar"),
                         ],
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width / 1,
-              child: Card(
-                child: Text("Toplam Gelir:   ${box.get(0)}"),
-              ),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: Card(
+                      child: Column(
+                        children: [
+                          Text(
+                            "${box.get(0)}",
+                            style: TextStyle(fontSize: 30),
+                          ),
+                          Text(
+                            "Toplam Gelir",
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: Card(
+                      child: Column(
+                        children: [
+                          Text(" ${box.get(1)}",
+                              style: TextStyle(fontSize: 30)),
+                          Text(" Toplam Gider"),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width / 1,
-              child: Card(
-                child: Text("Toplam gider: $toplamgider"),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -139,79 +220,47 @@ class _AnaEkranState extends State<AnaEkran>
   Future openDialog() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("Gelir ekle"),
+          title: const Text("Gelir ekle"),
           content: TextField(
+            keyboardType: TextInputType.phone,
+            autofocus: true,
             controller: _gelirController,
-            onSubmitted: (value)  {
+            onSubmitted: (value) {
               Navigator.pop(context);
 
-
-
-
-              print(box.get(0));
               gelir.toString() != value;
-              print("çıktı ${int.parse(value)}");
-              //toplamgelir = box.get(0)!;
-              toplamgelir =(toplamgelir! + int.parse(value)!) ;
+
+              toplamgelir = (toplamgelir + int.parse(value));
               value = toplamgelir.toString();
-              print("toplam gelir $toplamgelir");
+
               box.put(0, toplamgelir);
-              setState(() {
-
-              });
-              /*
-              box.put(0, int.parse(value));
-              print(box.get(0));
-              gelir.toString() != value;
-              print("çıktı ${int.parse(value)}");
-              toplamgelir = box.get(0)!;
-              toplamgelir =(toplamgelir! + gelir!) ;
-              value = toplamgelir.toString();
-              print("toplam gelir $toplamgelir");
-               */
-
-
+              value = '';
+              setState(() {});
             },
           ),
         ),
       );
+
   Future openDialog1() => showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("Gider ekle"),
-      content: TextField(
-        controller: _giderController,
-        onSubmitted: (value1)  {
-          Navigator.pop(context);
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Gider ekle"),
+          content: TextField(
+            controller: _giderController,
+            keyboardType: TextInputType.phone,
+            onSubmitted: (value1) {
+              Navigator.pop(context);
 
-          //print(box.get(1));
-          gider = int.parse(value1);
-          print("gider $gider");
-          print("çıktı ${int.parse(value1)}");
-          toplamgider =toplamgider! +int.parse(value1);
-          value1 = toplamgider.toString();
-          print("toplam gider $toplamgider");
-          box.put(1, toplamgider);
+              gider = int.parse(value1);
 
-setState(() {
-  
-});
+              toplamgider = toplamgider + int.parse(value1);
 
+              box.put(1, toplamgider);
+              value1 = '';
 
-          /*
-              box.put(0, int.parse(value));
-              print(box.get(0));
-              gelir.toString() != value;
-              print("çıktı ${int.parse(value)}");
-              toplamgelir = box.get(0)!;
-              toplamgelir =(toplamgelir! + gelir!) ;
-              value = toplamgelir.toString();
-              print("toplam gelir $toplamgelir");
-               */
-
-
-        },
-      ),
-    ),
-  );
+              setState(() {});
+            },
+          ),
+        ),
+      );
 }
